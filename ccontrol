@@ -1,0 +1,30 @@
+#http://www.debian-administration.org/article/317/An_introduction_to_bash_completion_part_2
+_ccontrol() 
+{
+    local cur prev opts instances
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    opts="start stop force backup stat create update delete rename default view list qlist all qall nodename session version help"
+    instances=$(for x in `ccontrol qlist | awk -F ^ '{print $1}'`; do echo ${x} ; done)
+
+
+    case "${prev}" in 
+	start|stop|restart|delete|session|stat)
+        COMPREPLY=( $(compgen -W "${instances}" -- ${cur}) )
+    	return 0
+	    ;;
+	help)
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+        ;;
+    *)
+    ;;
+    esac
+    if [[ ${cur} == * ]] ; then
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    fi
+}
+complete -F _ccontrol ccontrol
